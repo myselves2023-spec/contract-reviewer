@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+vendor/
+samples/*_审查意见书.docx
+samples/审查意见书_样例.docx
+.DS_Store
+
+# ��ʱ����
+*.zip
+*.log

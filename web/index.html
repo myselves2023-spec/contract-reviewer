@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>合同风险审查台 · Contract Review</title>
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#1f3a5f" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="合同审查" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="icon" href="/favicon.png" />
+<link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">⚖</div>
+    <div>
+      <h1>合同风险审查台</h1>
+      <p class="tagline">条款级定位 · 法条可溯源 · 可导出意见书</p>
+    </div>
+  </div>
+  <div class="chips" id="metaChips">
+    <span class="chip chip-muted">加载中…</span>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- 左：合同原文 -->
+  <section class="panel panel-doc">
+    <div class="panel-head">
+      <h2>合同原文</h2>
+      <div class="head-actions" id="docActions" hidden>
+        <span class="file-name" id="fileName"></span>
+        <button class="btn btn-ghost" id="btnReset">重新上传</button>
+      </div>
+    </div>
+    <div class="panel-body" id="docBody">
+      <div class="dropzone" id="dropzone">
+        <div class="dz-icon">📄</div>
+        <p class="dz-title">拖入合同文件，或点击选择</p>
+        <p class="dz-sub">支持 .docx / .pdf / .txt / .md，单文件不超过 12 MB</p>
+        <input type="file" id="fileInput" accept=".docx,.pdf,.txt,.md,.markdown" hidden />
+        <div class="dz-actions">
+          <button class="btn btn-primary" id="btnPick">选择文件</button>
+          <button class="btn btn-ghost" id="btnSample">载入技术服务样例</button>
+          <button class="btn btn-ghost" id="btnSampleLease">载入租赁样例</button>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="useLlm" checked />
+          <span>启用大模型复核（需配置 API Key，未配置时自动降级）</span>
+        </label>
+      </div>
+      <pre class="doc-text" id="docText" hidden></pre>
+    </div>
+  </section>
+
+  <!-- 右：审查结果 -->
+  <section class="panel panel-result">
+    <div class="panel-head">
+      <h2>审查结果</h2>
+      <button class="btn btn-primary" id="btnExport" hidden>导出意见书</button>
+    </div>
+    <div class="panel-body" id="resultBody">
+      <div class="empty">
+        <div class="empty-icon">🔍</div>
+        <p>上传合同后，这里会列出风险条款</p>
+        <p class="empty-hint">全部检测在本地完成，文件不会离开你的机器</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="loading" id="loading" hidden>
+  <div class="spinner"></div>
+  <p id="loadingText">正在审查…</p>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="modalTitle"></h3>
+      <button class="btn btn-ghost" id="modalClose">关闭</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="/assets/app.js"></script>
+</body>
+</html>

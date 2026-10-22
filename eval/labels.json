@@ -1,0 +1,42 @@
+{
+  "note": "人工标注：expected 为该合同确实存在的风险点编号，空数组表示不应命中任何审查点（用于衡量误报）。扩充评测集时直接加 case 即可。",
+  "cases": [
+    {
+      "file": "sample_contract.txt",
+      "expected": [
+        "CP01",
+        "CP02",
+        "CP04",
+        "CP05",
+        "CP07",
+        "CP08",
+        "CP09",
+        "CP10",
+        "CP13",
+        "CP14",
+        "CP15",
+        "CP16",
+        "CP17",
+        "CP22"
+      ]
+    },
+    {
+      "file": "clean_service_contract.txt",
+      "expected": []
+    },
+    {
+      "file": "租赁合同_样例.txt",
+      "expected": [
+        "CP02",
+        "CP06",
+        "CP15",
+        "CP17",
+        "CP25",
+        "CP26",
+        "CP27",
+        "CP28",
+        "CP31"
+      ]
+    }
+  ]
+}
