@@ -54,9 +54,10 @@
   }
 
   /* ------------------------------------------------------------ 元信息 */
-  async function loadMeta() {
+  async function loadMeta(attempt = 1) {
     try {
-      const res = await fetch("/api/meta");
+      const res = await fetch("/api/meta", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const meta = await res.json();
       const chips = [
         `<span class="chip">法条库 ${meta.statutes} 条</span>`,
@@ -67,7 +68,16 @@
       ];
       $("metaChips").innerHTML = chips.join("");
     } catch (err) {
-      $("metaChips").innerHTML = `<span class="chip chip-off">服务未就绪</span>`;
+      // 免费实例会休眠，唤醒要 20–30 秒。只试一次就会永久卡在"未就绪"。
+      if (attempt < 6) {
+        $("metaChips").innerHTML = `<span class="chip chip-muted">正在唤醒服务…（${attempt}/5）</span>`;
+        setTimeout(() => loadMeta(attempt + 1), attempt * 3000);
+        return;
+      }
+      $("metaChips").innerHTML =
+        `<span class="chip chip-off" id="chipRetry" style="cursor:pointer">服务未就绪 · 点击重试</span>`;
+      const retry = $("chipRetry");
+      if (retry) retry.addEventListener("click", () => loadMeta(1));
     }
   }
 
@@ -443,7 +453,7 @@
       $("btnExport").hidden = true;
       $("resultBody").innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>
         <p>上传合同后，这里会列出风险条款</p>
-        <p class="empty-hint">全部检测在本地完成，文件不会离开你的机器</p></div>`;
+        <p class="empty-hint">文件仅在审查请求中于内存处理，不写盘、不保留</p></div>`;
     });
 
     $("btnExport").addEventListener("click", exportDocx);
