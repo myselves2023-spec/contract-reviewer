@@ -29,10 +29,25 @@ VALID_REMEDIES = ("delete", "insert", "local-replace", "replace", "comment", "re
 MAX_ITEMS = 12
 DEFAULT_PROMPT = "review_v1"
 
+# 中文输入法常见的全角标点。曾经因为 LLM_BASE_URL 里混进全角冒号（：），
+# 部署后所有模型调用都静默失败，报错只写 "unknown url type"。
+_FULLWIDTH = str.maketrans({
+    "：": ":",
+    "／": "/",
+    "．": ".",
+    "　": " ",
+    "\u00a0": " ",
+})
+
+
+def normalize_base_url(value: str) -> str:
+    """纠正配置里误输入的全角标点，并去掉尾部斜杠。"""
+    return (value or "").translate(_FULLWIDTH).strip().rstrip("/")
+
 
 def config() -> dict:
     return {
-        "base_url": (os.environ.get("LLM_BASE_URL") or "").strip(),
+        "base_url": normalize_base_url(os.environ.get("LLM_BASE_URL") or ""),
         "api_key": (os.environ.get("LLM_API_KEY") or "").strip(),
         "model": (os.environ.get("LLM_MODEL") or "deepseek-chat").strip(),
         "timeout": int(os.environ.get("LLM_TIMEOUT") or 45),
@@ -120,8 +135,13 @@ def context_for(segments: list[dict], finding: dict, limit: int = 6) -> str:
 # ------------------------------------------------------------------ 调用
 
 def _post(cfg: dict, body: dict) -> dict:
+    url = cfg["base_url"].rstrip("/") + "/chat/completions"
+    if not url.startswith(("http://", "https://")):
+        raise ValueError(
+            f"LLM_BASE_URL 格式不正确：{cfg['base_url']!r}，应形如 https://api.deepseek.com/v1"
+        )
     request = urllib.request.Request(
-        cfg["base_url"].rstrip("/") + "/chat/completions",
+        url,
         data=json.dumps(body).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
