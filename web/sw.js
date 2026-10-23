@@ -1,6 +1,6 @@
 /* Service Worker：缓存应用外壳，让「添加到主屏幕」后能秒开。
    接口一律不缓存——审查结果必须实时。 */
-const CACHE = "contract-reviewer-v1";
+const CACHE = "contract-reviewer-v2";
 
 const SHELL = [
   "/",
