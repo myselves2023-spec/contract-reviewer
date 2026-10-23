@@ -21,6 +21,7 @@ import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import urlparse
 
 PROMPT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "prompts")
 
@@ -41,8 +42,23 @@ _FULLWIDTH = str.maketrans({
 
 
 def normalize_base_url(value: str) -> str:
-    """纠正配置里误输入的全角标点，并去掉尾部斜杠。"""
-    return (value or "").translate(_FULLWIDTH).strip().rstrip("/")
+    """纠正配置里误输入的全角标点，去掉尾部斜杠，并把公网的 http 升级为 https。
+
+    公网 API 端点几乎都只认真 https：写成 http 会 302 跳转，而 urllib 跟随
+    重定向时会把 POST 改成 GET，导致调用失败且报错难懂。本地/内网地址保持原样。
+    """
+    text = (value or "").translate(_FULLWIDTH).strip().rstrip("/")
+    if text.startswith("http://"):
+        host = (urlparse(text).hostname or "").lower()
+        private = (
+            not host
+            or host in {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+            or host.startswith(("192.168.", "10.", "172.16.", "172.17.", "172.18.",
+                                "172.19.", "172.2", "172.30.", "172.31."))
+        )
+        if not private:
+            text = "https://" + text[len("http://"):]
+    return text
 
 
 def config() -> dict:
